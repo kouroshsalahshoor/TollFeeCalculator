@@ -1,5 +1,7 @@
 ﻿//using TollFeeCalculator;
 
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
 namespace TollFeeCalculator
 {
     public class TollCalculator
@@ -16,40 +18,38 @@ namespace TollFeeCalculator
         public int GetTollFee(Vehicle vehicle, DateTime[] dates)
         {
             DateTime intervalStart = dates[0];
-            int totalFee = 0;
+            int totalFee = GetTollFee(intervalStart, vehicle);
+            //int totalFee = 0;
             foreach (DateTime date in dates)
             {
                 int nextFee = GetTollFee(date, vehicle);
-                int tempFee = GetTollFee(intervalStart, vehicle);
+                //int tempFee = GetTollFee(intervalStart, vehicle);
 
-                long diffInMillies = date.Millisecond - intervalStart.Millisecond;
-                long minutes = diffInMillies / 1000 / 60;
+                var minutes = date.Subtract(intervalStart).TotalMinutes;
+                //long diffInMillies = date.Millisecond - intervalStart.Millisecond;
+                //long minutes = diffInMillies / 60000;
+                //long minutes = diffInMillies / 1000 / 60;
 
-                if (minutes <= 60)
-                {
-                    if (totalFee > 0) totalFee -= tempFee;
-                    if (nextFee >= tempFee) tempFee = nextFee;
-                    totalFee += tempFee;
-                }
-                else
+                if (minutes > 60)
                 {
                     totalFee += nextFee;
                 }
+
+                //if (minutes <= 60)
+                //{
+                //    if (totalFee > 0) totalFee -= tempFee;
+                //    if (nextFee >= tempFee) tempFee = nextFee;
+                //    totalFee += tempFee;
+                //}
+                //else
+                //{
+                //    totalFee += nextFee;
+                //}
+
+                intervalStart = date;
             }
             if (totalFee > 60) totalFee = 60;
             return totalFee;
-        }
-
-        private bool IsTollFreeVehicle(Vehicle vehicle)
-        {
-            if (vehicle == null) return false;
-            String vehicleType = vehicle.GetVehicleType();
-            return vehicleType.Equals(TollFreeVehicles.Motorbike.ToString()) ||
-                   vehicleType.Equals(TollFreeVehicles.Tractor.ToString()) ||
-                   vehicleType.Equals(TollFreeVehicles.Emergency.ToString()) ||
-                   vehicleType.Equals(TollFreeVehicles.Diplomat.ToString()) ||
-                   vehicleType.Equals(TollFreeVehicles.Foreign.ToString()) ||
-                   vehicleType.Equals(TollFreeVehicles.Military.ToString());
         }
 
         public int GetTollFee(DateTime date, Vehicle vehicle)
@@ -71,7 +71,19 @@ namespace TollFeeCalculator
             else return 0;
         }
 
-        private Boolean IsTollFreeDate(DateTime date)
+        private bool IsTollFreeVehicle(Vehicle vehicle)
+        {
+            if (vehicle == null) return false;
+            string vehicleType = vehicle.GetVehicleType();
+            return vehicleType.Equals(TollFreeVehicles.Motorbike.ToString()) ||
+                   vehicleType.Equals(TollFreeVehicles.Tractor.ToString()) ||
+                   vehicleType.Equals(TollFreeVehicles.Emergency.ToString()) ||
+                   vehicleType.Equals(TollFreeVehicles.Diplomat.ToString()) ||
+                   vehicleType.Equals(TollFreeVehicles.Foreign.ToString()) ||
+                   vehicleType.Equals(TollFreeVehicles.Military.ToString());
+        }
+
+        private bool IsTollFreeDate(DateTime date)
         {
             int year = date.Year;
             int month = date.Month;
@@ -79,20 +91,20 @@ namespace TollFeeCalculator
 
             if (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday) return true;
 
-            if (year == 2013)
+            //if (year == 2013) ???
+            //{
+            if (month == 1 && day == 1 ||
+                month == 3 && (day == 28 || day == 29) ||
+                month == 4 && (day == 1 || day == 30) ||
+                month == 5 && (day == 1 || day == 8 || day == 9) ||
+                month == 6 && (day == 5 || day == 6 || day == 21) ||
+                month == 7 ||
+                month == 11 && day == 1 ||
+                month == 12 && (day == 24 || day == 25 || day == 26 || day == 31))
             {
-                if (month == 1 && day == 1 ||
-                    month == 3 && (day == 28 || day == 29) ||
-                    month == 4 && (day == 1 || day == 30) ||
-                    month == 5 && (day == 1 || day == 8 || day == 9) ||
-                    month == 6 && (day == 5 || day == 6 || day == 21) ||
-                    month == 7 ||
-                    month == 11 && day == 1 ||
-                    month == 12 && (day == 24 || day == 25 || day == 26 || day == 31))
-                {
-                    return true;
-                }
+                return true;
             }
+            //}
             return false;
         }
 
