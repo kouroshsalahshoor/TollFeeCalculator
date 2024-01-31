@@ -1,3 +1,4 @@
+using TollFeeCalculator.Models;
 using static TollFeeCalculator.TollCalculator;
 
 namespace TollFeeCalculator.Tests

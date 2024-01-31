@@ -1,5 +1,8 @@
 ﻿//using TollFeeCalculator;
 
+using TollFeeCalculator.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
 namespace TollFeeCalculator
 {
     public class TollCalculator
